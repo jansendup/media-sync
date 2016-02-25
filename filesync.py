@@ -67,6 +67,13 @@ class FileSync:
     return True
 
 if __name__ == "__main__":
-  filesync = FileSync('/home/jansen/t1', '/home/jansen/t2')
+  import argparse
+
+  parser = argparse.ArgumentParser(description='Sync files')
+  parser.add_argument('src', metavar='SRC', type=str, nargs=1, help='Source directory')
+  parser.add_argument('dst', metavar='DST', type=str, nargs=1, help='Destination directory')
+  args = parser.parse_args()
+  
+  filesync = FileSync(args.src[0], args.dst[0])
   loop.run_until_complete(filesync.move_files())
   loop.close()
