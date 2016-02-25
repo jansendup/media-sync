@@ -58,7 +58,7 @@ class FileSync:
       else:
         try:
           print(msg, 'Removing: {}'.format(src))
-          await loop.run_in_executor(None, os.remove(src))
+          await loop.run_in_executor(None, os.remove, src)
         except OSError as e:
           print(e)
 
