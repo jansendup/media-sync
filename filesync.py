@@ -1,12 +1,17 @@
+import asyncio
+import functools
 import os
 import shutil
+from concurrent.futures import CancelledError
+
+loop = asyncio.get_event_loop()
 
 class FileSync:
   def __init__(self, from_dir, to_dir):
     self.from_dir = from_dir
     self.to_dir = to_dir
 
-  def move_files(self):
+  async def move_files(self):
     if not os.path.isdir(self.from_dir):
       return False
     if not os.path.isdir(self.to_dir):
@@ -44,17 +49,24 @@ class FileSync:
 
       msg = '[{}%]'.format((idx+1)*100.0 / len(t))
       if src_size > dst_size or (src_size == dst_size and src_mtime > dst_mtime):
-        print(msg, '{} -> {}'.format(src, dst))
-        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        print(msg, '{}{} -> {}'.format('replace ' if dst_size != 0 else '', src, dst))
+        await loop.run_in_executor(None, functools.partial(os.makedirs, os.path.dirname(dst), exist_ok=True))
         try:
-          shutil.move(src, dst)
+          await loop.run_in_executor(None, shutil.move, src, dst)
+        except CancelledError as ce:
+          pass
         except Exception as e:
           print(e)
       else:
         try:
           print(msg, 'Removing: {}'.format(src))
-          os.remove(src)
+          await loop.run_in_executor(None, os.remove(src))
         except OSError as e:
           print(e)
 
     return True
+
+if __name__ == "__main__":
+  filesync = FileSync('/home/jansen/t1', '/home/jansen/t2')
+  loop.run_until_complete(filesync.move_files())
+  loop.close()
