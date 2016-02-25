@@ -12,9 +12,8 @@ class FileSync:
     self.to_dir = to_dir
 
   async def move_files(self):
-    if not os.path.isdir(self.from_dir):
-      return False
-    if not os.path.isdir(self.to_dir):
+    if not os.path.isdir(self.from_dir) or not os.path.isdir(self.to_dir):
+      print('error', self.from_dir, self.to_dir)
       return False
 
     transfers = []
@@ -29,9 +28,7 @@ class FileSync:
         transfers.append({'src':src, 'dst':dst, 'retries':0})
 
     for idx, t in enumerate(transfers):
-      if not os.path.isdir(self.to_dir):
-        continue
-      if not os.path.isdir(self.from_dir):
+      if not os.path.isdir(self.from_dir) or not os.path.isdir(self.to_dir):
         continue
 
       src = t['src']
