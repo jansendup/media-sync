@@ -45,7 +45,7 @@ class FileSync:
         dst_mtime = st.st_mtime
 
       msg = '[{}%]'.format((idx+1)*100.0 / len(transfers))
-      if src_size > dst_size or (src_size == dst_size and src_mtime > dst_mtime):
+      if src_size > dst_size or (src_size == dst_size and src_mtime > (dst_mtime + 300)):
         replace_msg = 'replace (src_size: {}, dst_size: {}, src_mtime: {} dst_mtime: {}) '.format(src_size, dst_size, src_mtime, dst_mtime)
         print(msg, '{}{} -> {}'.format(replace_msg if dst_size != 0 else '', src, dst))
         await loop.run_in_executor(None, functools.partial(os.makedirs, os.path.dirname(dst), exist_ok=True))
